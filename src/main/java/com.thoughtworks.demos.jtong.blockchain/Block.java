@@ -7,10 +7,15 @@ public class Block {
         return hash;
     }
 
+    public String getPreviouseHash() {
+        return previouseHash;
+    }
+
     private String hash;
     private String previouseHash;
     private String data;
     private long timeStamp;
+    private int nonce;
 
     public Block(String data, String previouseHash) {
         this.previouseHash = previouseHash;
@@ -19,10 +24,19 @@ public class Block {
         this.hash = calculateHash();
     }
 
-    private String calculateHash() {
-        String result = StringUtil.applySha256(previouseHash + Long.toString(timeStamp) + data);
+    public String calculateHash() {
+        String result = StringUtil.applySha256(previouseHash + Long.toString(timeStamp)+Integer.toString(nonce)
+                + data);
         return result;
     }
 
 
+    public void mineBlock(int difficulty) {
+        String target = new String(new char[difficulty]).replace('\0', '0');
+        while (!hash.substring(0, difficulty).equals(target)) {
+            nonce ++;
+            hash = calculateHash();
+        }
+        System.out.println("Block Mined!!! : " + hash);
+    }
 }
