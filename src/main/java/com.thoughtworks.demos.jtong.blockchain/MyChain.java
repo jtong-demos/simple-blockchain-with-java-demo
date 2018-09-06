@@ -1,16 +1,43 @@
 package com.thoughtworks.demos.jtong.blockchain;
 
+import java.security.Security;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 
 
 public class MyChain {
 
-    public static ArrayList<Block> blockChain = new ArrayList<>();
+    private static ArrayList<Block> blockChain = new ArrayList<>();
+    public static Map<String, TransactionOutput> UTXOs = new HashMap<>();
+    public static float minimumTransaction = 0.1f;
     private static int difficulty = 5;
+    private static Wallet walletA;
+    private static Wallet walletB;
+
 
     public static void main(String[] args) {
+        //Setup Bouncey castle as a Security Provider
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        walletA = new Wallet();
+        walletB = new Wallet();
+
+        System.out.println("Private and public keys:");
+        System.out.println(StringUtil.getStringFromKey(walletA.getPrivateKey()));
+        System.out.println(StringUtil.getStringFromKey(walletA.getPublicKey()));
+
+        Transaction transaction = new Transaction(walletA.getPublicKey(), walletB.getPublicKey(), 5, null);
+        transaction.generateSignature(walletA.getPrivateKey());
+
+
+        System.out.println("Is signature verified");
+        System.out.println(transaction.verifySignature());
+    }
+
+    private static void blockMiningWithDifficulty() {
         blockChain.add(new Block("Hello, World", "0"));
         System.out.println("Trying to Mine block 1... ");
         blockChain.get(0).mineBlock(difficulty);

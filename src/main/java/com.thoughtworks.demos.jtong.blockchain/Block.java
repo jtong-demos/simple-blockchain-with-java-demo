@@ -39,4 +39,15 @@ public class Block {
         }
         System.out.println("Block Mined!!! : " + hash);
     }
+
+
+//    public boolean addTransaction(Transaction transaction) {
+//        if (transaction == null) {
+//            return false;
+//        }
+//
+//        if(!previouseHash.equals("0")){
+//            if(transaction.())
+//        }
+//    }
 }
