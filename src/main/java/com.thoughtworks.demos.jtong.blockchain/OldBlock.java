@@ -1,10 +1,8 @@
 package com.thoughtworks.demos.jtong.blockchain;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-public class Block {
+public class OldBlock {
     public String getHash() {
         return hash;
     }
@@ -15,13 +13,13 @@ public class Block {
 
     private String hash;
     private String previouseHash;
-    private String merkleRoot;
-    private List<Transaction> transactions = new ArrayList<>();
+    private String data;
     private long timeStamp;
     private int nonce;
 
-    public Block(String previouseHash) {
+    public OldBlock(String data, String previouseHash) {
         this.previouseHash = previouseHash;
+        this.data = data;
         this.timeStamp = new Date().getTime();
         this.hash = calculateHash();
     }
@@ -31,13 +29,12 @@ public class Block {
                 applySha256(previouseHash
                         + Long.toString(timeStamp)
                         +Integer.toString(nonce)
-                        + merkleRoot);
+                + data);
         return result;
     }
 
 
     public void mineBlock(int difficulty) {
-        this.merkleRoot = StringUtil.getMarkleRoot(transactions);
         String target = new String(new char[difficulty]).replace('\0', '0');
         while (!hash.substring(0, difficulty).equals(target)) {
             nonce ++;
@@ -47,23 +44,13 @@ public class Block {
     }
 
 
-    public boolean addTransaction(Transaction transaction) {
-        if (transaction == null) {
-            return false;
-        }
-
-        if(!"0".equals(previouseHash)){
-            if (transaction.processTransaction() != true) {
-                System.out.println("Transaction failed to process. Discarded.");
-                return false;
-            }
-        }
-        transactions.add(transaction);
-        System.out.println("Transaction Successfully added to OldBlock");
-        return true;
-    }
-
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
+//    public boolean addTransaction(Transaction transaction) {
+//        if (transaction == null) {
+//            return false;
+//        }
+//
+//        if(!previouseHash.equals("0")){
+//            if(transaction.())
+//        }
+//    }
 }

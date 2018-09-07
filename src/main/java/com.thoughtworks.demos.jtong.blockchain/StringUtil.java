@@ -4,7 +4,9 @@ import org.omg.CORBA.REBIND;
 
 import javax.swing.*;
 import java.security.*;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class StringUtil {
     public static String applySha256(String input) {
@@ -53,5 +55,27 @@ public class StringUtil {
 
     public static String getStringFromKey(Key key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
+    }
+
+    public static String getMarkleRoot(List<Transaction> transactions) {
+        int count = transactions.size();
+        List<String> previouseTreeLayer = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            previouseTreeLayer.add(transaction.getTransactionId());
+
+        }
+
+        List<String> treeLayer = previouseTreeLayer;
+
+        while (count > 1) {
+            treeLayer = new ArrayList<>();
+            for (int i = 1; i < previouseTreeLayer.size(); i++) {
+                treeLayer.add(applySha256(previouseTreeLayer.get(i - 1) + previouseTreeLayer.get(i)));
+            }
+            count = treeLayer.size();
+            previouseTreeLayer = treeLayer;
+        }
+        String markleRoot = (treeLayer.size() == 1) ? treeLayer.get(0) : "";
+        return markleRoot;
     }
 }

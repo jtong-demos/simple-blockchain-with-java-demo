@@ -22,4 +22,12 @@ public class TransactionOutput {
     public float getValue() {
         return value;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public PublicKey getRecipient() {
+        return recipient;
+    }
 }

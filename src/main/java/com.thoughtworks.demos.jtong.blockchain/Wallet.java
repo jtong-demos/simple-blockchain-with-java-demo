@@ -3,6 +3,10 @@ package com.thoughtworks.demos.jtong.blockchain;
 import javax.crypto.KeyGenerator;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Wallet {
     public PrivateKey getPrivateKey() {
@@ -16,6 +20,7 @@ public class Wallet {
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
+    private Map<String, TransactionOutput> UTXOs = new HashMap<>();
 
     public Wallet(){
         generateKeyPair();
@@ -36,7 +41,45 @@ public class Wallet {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
 
+
+    public float getBalance() {
+        float total = 0;
+        for (Map.Entry<String, TransactionOutput> item : MyChain.UTXOs.entrySet()) {
+            TransactionOutput UTXO = item.getValue();
+            if (UTXO.isMine(publicKey)) {
+                UTXOs.put(UTXO.getId(), UTXO);
+                total += UTXO.getValue();
+            }
+        }
+        return total;
+    }
+
+    public Transaction sendFunds(PublicKey receipt, float value) {
+        if (getBalance() < value) {
+            System.out.println("Not Enough fund to send transaction. Transaction Discarded.");
+            return null;
+        }
+
+        List<TransactionInput> inputs = new ArrayList<>();
+
+        float total = 0;
+        for (Map.Entry<String, TransactionOutput> item : UTXOs.entrySet()) {
+            TransactionOutput UTXO = item.getValue();
+            total += UTXO.getValue();
+            inputs.add(new TransactionInput(UTXO.getId()));
+            if(total > value) break;
+        }
+
+        Transaction newTransaction = new Transaction(publicKey, receipt, value, inputs);
+        newTransaction.generateSignature(privateKey);
+
+        for (TransactionInput input : inputs) {
+            UTXOs.remove(input.getTransactionOutputId());
+        }
+        return newTransaction;
 
     }
+
 }

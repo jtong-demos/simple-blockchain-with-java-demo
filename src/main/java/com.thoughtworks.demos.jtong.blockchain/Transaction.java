@@ -43,7 +43,7 @@ public class Transaction {
     }
 
 
-    public boolean processTransaction(){
+    public boolean processTransaction() {
         if (verifySignature() == true) {
             return false;
         }
@@ -58,8 +58,19 @@ public class Transaction {
             return false;
         }
 
-        //TODO
-        
+        float leftOver = getInputsValue() - value;
+        transactionId = calculateHash();
+        outputs.add(new TransactionOutput(this.recipient, value, transactionId));
+        outputs.add(new TransactionOutput(this.sender, leftOver, transactionId));
+
+        for (TransactionOutput o : outputs) {
+            MyChain.UTXOs.put(o.getId(), o);
+        }
+
+        for (TransactionInput i : inputs) {
+            if(i.getUTXO() == null) continue;
+            MyChain.UTXOs.remove(i.getUTXO().getId());
+        }
         return true;
     }
 
@@ -70,5 +81,42 @@ public class Transaction {
             total+=i.getUTXO().getValue();
         }
         return total;
+    }
+
+    public float getOutputsValue() {
+        float total = 0;
+        for(TransactionOutput o : outputs) {
+            total += o.getValue();
+        }
+        return total;
+    }
+
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public List<TransactionOutput> getOutputs() {
+        return outputs;
+    }
+
+    public PublicKey getRecipient() {
+        return recipient;
+    }
+
+    public float getValue() {
+        return value;
+    }
+
+    public List<TransactionInput> getInputs() {
+        return inputs;
+    }
+
+    public PublicKey getSender() {
+        return sender;
     }
 }
